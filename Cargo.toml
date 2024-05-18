@@ -1,0 +1,27 @@
+[package]
+name = "image-to-base64"
+version = "0.1.0"
+authors = ["Jaap"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["console_error_panic_hook"]
+
+[dependencies]
+cfg-if = "1.0.0"
+worker = "0.2.0"
+serde_json = "1.0.116"
+tiny-skia = "0.6.3"
+url = "2.5.0"
+base64 = "0.13.0"
+
+console_error_panic_hook = { version = "0.1.7", optional = true }
+
+[profile.release]
+opt-level = "s"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
