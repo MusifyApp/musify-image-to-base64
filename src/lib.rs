@@ -1,6 +1,8 @@
 use url::Url;
 use worker::*;
 use base64;
+use image::{imageops::resize, DynamicImage, GenericImageView, ImageOutputFormat};
+
 
 use console_error_panic_hook::set_once as set_panic_hook;
 
@@ -38,11 +40,33 @@ async fn handle_render(image_url: String) -> Result<Response> {
     }
     let image_data = res.bytes().await?;
 
-    // convert image to base64
-
-    let base64_image = base64::encode(&image_data);
-
+    // Load the image from the bytes
+    let img = match image::load_from_memory(&image_data) {
+        Ok(img) => img,
+        Err(err) => return Response::error(format!("Failed to load image: {}", err), 500),
+    };
+    
+    // Calculate the new dimensions while maintaining aspect ratio
+    let (width, height) = img.dimensions();
+    let aspect_ratio = width as f32 / height as f32;
+    let new_height = ((256 * 1024) as f32 / aspect_ratio).sqrt() as u32;
+    let new_width = (new_height as f32 * aspect_ratio) as u32;
+    
+    // Resize the image
+    let resized_img = resize(&img, new_width, new_height, image::imageops::FilterType::Nearest);
+    
+    // Write the resized image to a vector in memory
+    let dyn_img = DynamicImage::ImageRgba8(resized_img);
+    let mut buffer = Vec::new();
+    match dyn_img.write_to(&mut buffer, ImageOutputFormat::Jpeg(75)) {
+        Ok(_) => (),
+        Err(err) => return Response::error(format!("Failed to write image: {}", err), 500),
+    };
+    
+    // Convert the resized image to base64
+    let base64_image = base64::encode(&buffer);
+    
     let mut headers = Headers::new();
-    // OK reponse with base64 image
+    // OK response with base64 image
     Ok(Response::ok(base64_image)?)
 }
