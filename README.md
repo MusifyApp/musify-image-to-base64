@@ -19,6 +19,6 @@ Image to Base64 converter in Cloudflare Workers
 
 # Usage
 
-`https://base64.musify.dev/{IMAGE URL}`
+`https://base64.musify.fm/{IMAGE URL}`
 
-**Demo**: https://base64.musify.dev/https://musifyapp.ams3.cdn.digitaloceanspaces.com/playlist-artwork/7.jpeg
+**Demo**: https://base64.musify.fm/https://musifyapp.ams3.cdn.digitaloceanspaces.com/playlist-artwork/7.jpeg
